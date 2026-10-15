@@ -1,0 +1,9 @@
+# Copy to terraform.tfvars and fill in real values. terraform.tfvars is git-ignored.
+org_id = "123456789012"
+billing_account = "000000-000000-000000"
+seed_project = "my-lz-seed"
+prefix = "my-lz"
+tf_sa = "terraform@my-lz-seed.iam.gserviceaccount.com"
+domain = "example.com"
+customer_id = "C0xxxxxxx"
+# region = "europe-west2"  # optional, defaults to europe-west2

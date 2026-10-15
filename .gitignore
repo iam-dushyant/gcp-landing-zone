@@ -1,0 +1,23 @@
+# Local Terraform folder and state
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+crash.*.log
+
+# Variables, which may contain sensitive values
+*.tfvars
+*.tfvars.json
+
+# Local overrides
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Credentials and local config
+*.json
+.terraformrc
+terraform.rc
+backend.hcl
