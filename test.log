@@ -1,0 +1,131 @@
+
+[1m== 1. No service account keys[0m
+$ gcloud iam service-accounts create test-sa --project=d-fyi-lz-prod-app
+ERROR: (gcloud.iam.service-accounts.create) [admin@dushyant.fyi] does not have permission to access projects instance [d-fyi-lz-prod-app] (or it may not exist): Permission 'iam.serviceAccounts.create' denied on resource '//cloudresourcemanager.googleapis.com/projects/d-fyi-lz-prod-app' (or it may not exist). Remediate access with this Troubleshooter URL or share it with your administrator - https://console.cloud.google.com/iam-admin/troubleshooter/summary;errorId=CiQwMWExM2RiMC00M2ZlLTc4Y2UtYTM0ZS1lMDg4OGZmNDEyOTcSGnByb2plY3RzL2QtZnlpLWx6LXByb2QtYXBw . This command is authenticated as admin@dushyant.fyi which is the active account specified by the [core/account] property.
+- '@type': type.googleapis.com/google.rpc.ErrorInfo
+  domain: iam.googleapis.com
+  metadata:
+    error_info_id: CiQwMWExM2RiMC00M2ZlLTc4Y2UtYTM0ZS1lMDg4OGZmNDEyOTcSGnByb2plY3RzL2QtZnlpLWx6LXByb2QtYXBw
+    permission: iam.serviceAccounts.create
+    resource: projects/d-fyi-lz-prod-app
+    troubleshooter_url: https://console.cloud.google.com/iam-admin/troubleshooter/summary;errorId=CiQwMWExM2RiMC00M2ZlLTc4Y2UtYTM0ZS1lMDg4OGZmNDEyOTcSGnByb2plY3RzL2QtZnlpLWx6LXByb2QtYXBw
+  reason: IAM_PERMISSION_DENIED
+[exit 1]
+$ gcloud iam service-accounts keys create /tmp/key.json --iam-account=test-sa@d-fyi-lz-prod-app.iam.gserviceaccount.com
+ERROR: (gcloud.iam.service-accounts.keys.create) NOT_FOUND: Unknown service account. This command is authenticated as admin@dushyant.fyi which is the active account specified by the [core/account] property
+[exit 1]
+
+[1m== 2. Data residency[0m
+$ gcloud storage buckets create gs://d-fyi-lz-us-test --location=us-central1 --project=d-fyi-lz-prod-app
+Creating gs://d-fyi-lz-us-test/...
+ERROR: (gcloud.storage.buckets.create) HTTPError 403: The billing account for the owning project is disabled in state absent. This command is authenticated as admin@dushyant.fyi which is the active account specified by the [core/account] property
+[exit 1]
+
+[1m== 3. No public IPs[0m
+$ gcloud compute instances create t1 --project=d-fyi-lz-prod-app --zone=europe-west2-a --machine-type=e2-micro --subnet=projects/d-fyi-lz-net-host/regions/europe-west2/subnetworks/prod-subnet
+ERROR: (gcloud.compute.instances.create) PERMISSION_DENIED: Compute Engine API has not been used in project d-fyi-lz-prod-app before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=d-fyi-lz-prod-app then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry. This command is authenticated as admin@dushyant.fyi which is the active account specified by the [core/account] property.
+Compute Engine API has not been used in project d-fyi-lz-prod-app before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=d-fyi-lz-prod-app then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry.
+Google developers console API activation
+https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=d-fyi-lz-prod-app
+- '@type': type.googleapis.com/google.rpc.ErrorInfo
+  domain: googleapis.com
+  metadata:
+    activationUrl: https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=d-fyi-lz-prod-app
+    consumer: projects/d-fyi-lz-prod-app
+    containerInfo: d-fyi-lz-prod-app
+    service: compute.googleapis.com
+    serviceTitle: Compute Engine API
+  reason: SERVICE_DISABLED
+[exit 1]
+$ gcloud compute instances create t1 --project=d-fyi-lz-prod-app --zone=europe-west2-a --machine-type=e2-micro --subnet=projects/d-fyi-lz-net-host/regions/europe-west2/subnetworks/prod-subnet --no-address
+ERROR: (gcloud.compute.instances.create) PERMISSION_DENIED: Compute Engine API has not been used in project d-fyi-lz-prod-app before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=d-fyi-lz-prod-app then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry. This command is authenticated as admin@dushyant.fyi which is the active account specified by the [core/account] property.
+Compute Engine API has not been used in project d-fyi-lz-prod-app before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=d-fyi-lz-prod-app then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry.
+Google developers console API activation
+https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=d-fyi-lz-prod-app
+- '@type': type.googleapis.com/google.rpc.ErrorInfo
+  domain: googleapis.com
+  metadata:
+    activationUrl: https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=d-fyi-lz-prod-app
+    consumer: projects/d-fyi-lz-prod-app
+    containerInfo: d-fyi-lz-prod-app
+    service: compute.googleapis.com
+    serviceTitle: Compute Engine API
+  reason: SERVICE_DISABLED
+[exit 1]
+$ ssh_iap
+ERROR: (gcloud.compute.ssh) PERMISSION_DENIED: Compute Engine API has not been used in project d-fyi-lz-prod-app before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=d-fyi-lz-prod-app then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry. This command is authenticated as admin@dushyant.fyi which is the active account specified by the [core/account] property.
+Compute Engine API has not been used in project d-fyi-lz-prod-app before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=d-fyi-lz-prod-app then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry.
+Google developers console API activation
+https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=d-fyi-lz-prod-app
+- '@type': type.googleapis.com/google.rpc.ErrorInfo
+  domain: googleapis.com
+  metadata:
+    activationUrl: https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=d-fyi-lz-prod-app
+    consumer: projects/d-fyi-lz-prod-app
+    containerInfo: d-fyi-lz-prod-app
+    service: compute.googleapis.com
+    serviceTitle: Compute Engine API
+  reason: SERVICE_DISABLED
+      SSH attempt 1 failed, retrying in 20s...
+ERROR: (gcloud.compute.ssh) PERMISSION_DENIED: Compute Engine API has not been used in project d-fyi-lz-prod-app before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=d-fyi-lz-prod-app then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry. This command is authenticated as admin@dushyant.fyi which is the active account specified by the [core/account] property.
+Compute Engine API has not been used in project d-fyi-lz-prod-app before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=d-fyi-lz-prod-app then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry.
+Google developers console API activation
+https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=d-fyi-lz-prod-app
+- '@type': type.googleapis.com/google.rpc.ErrorInfo
+  domain: googleapis.com
+  metadata:
+    activationUrl: https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=d-fyi-lz-prod-app
+    consumer: projects/d-fyi-lz-prod-app
+    containerInfo: d-fyi-lz-prod-app
+    service: compute.googleapis.com
+    serviceTitle: Compute Engine API
+  reason: SERVICE_DISABLED
+      SSH attempt 2 failed, retrying in 20s...
+ERROR: (gcloud.compute.ssh) PERMISSION_DENIED: Compute Engine API has not been used in project d-fyi-lz-prod-app before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=d-fyi-lz-prod-app then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry. This command is authenticated as admin@dushyant.fyi which is the active account specified by the [core/account] property.
+Compute Engine API has not been used in project d-fyi-lz-prod-app before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=d-fyi-lz-prod-app then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry.
+Google developers console API activation
+https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=d-fyi-lz-prod-app
+- '@type': type.googleapis.com/google.rpc.ErrorInfo
+  domain: googleapis.com
+  metadata:
+    activationUrl: https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=d-fyi-lz-prod-app
+    consumer: projects/d-fyi-lz-prod-app
+    containerInfo: d-fyi-lz-prod-app
+    service: compute.googleapis.com
+    serviceTitle: Compute Engine API
+  reason: SERVICE_DISABLED
+      SSH attempt 3 failed, retrying in 20s...
+[exit 1]
+$ gcloud compute instances delete t1 --project=d-fyi-lz-prod-app --zone=europe-west2-a --quiet
+ERROR: (gcloud.compute.instances.delete) PERMISSION_DENIED: Compute Engine API has not been used in project d-fyi-lz-prod-app before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=d-fyi-lz-prod-app then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry. This command is authenticated as admin@dushyant.fyi which is the active account specified by the [core/account] property.
+Compute Engine API has not been used in project d-fyi-lz-prod-app before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=d-fyi-lz-prod-app then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry.
+Google developers console API activation
+https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=d-fyi-lz-prod-app
+- '@type': type.googleapis.com/google.rpc.ErrorInfo
+  domain: googleapis.com
+  metadata:
+    activationUrl: https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=d-fyi-lz-prod-app
+    consumer: projects/d-fyi-lz-prod-app
+    containerInfo: d-fyi-lz-prod-app
+    service: compute.googleapis.com
+    serviceTitle: Compute Engine API
+  reason: SERVICE_DISABLED
+[exit 1]
+
+[1m== 4. Central audit trail[0m
+$ gcloud logging read logName:"cloudaudit.googleapis.com" --project=d-fyi-lz-common-sec --bucket=org-audit --location=europe-west2 --view=_AllLogs --limit=10 --freshness=1h
+ERROR: (gcloud.logging.read) PERMISSION_DENIED: Permission denied for all log views. This command is authenticated as admin@dushyant.fyi which is the active account specified by the [core/account] property
+[exit 1]
+
+[1m== 5. VPC Service Controls perimeter (dry run)[0m
+$ bash -c echo hello | gcloud storage cp - gs://d-fyi-lz-prod-data/hello.txt
+ERROR: (gcloud.storage.cp) gs://d-fyi-lz-prod-data not found: 404.
+[exit 1]
+$ gcloud logging read protoPayload.metadata.dryRun=true --project=d-fyi-lz-prod-app --limit=5 --freshness=1h
+ERROR: (gcloud.logging.read) PERMISSION_DENIED: Permission denied for all log views. This command is authenticated as admin@dushyant.fyi which is the active account specified by the [core/account] property
+[exit 1]
+
+[1m== Summary[0m
+Passed: 3   Failed: 7
+
+[1m== Cleanup[0m
