@@ -1,0 +1,6 @@
+folder: non_prod
+owner: platform
+budget_gbp: 5
+apis:
+  - compute.googleapis.com
+  - storage.googleapis.com

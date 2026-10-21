@@ -1,0 +1,5 @@
+# Shared VPC host - Ideally for the Networks or Platform team
+folder: common
+owner: platform
+apis:
+  - compute.googleapis.com

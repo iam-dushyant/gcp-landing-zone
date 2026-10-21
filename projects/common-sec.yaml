@@ -1,0 +1,8 @@
+# Security - Ideally for the Security team
+# Involves central audit log, Cloud KMS, monitoring
+folder: common
+owner: security
+apis:
+  - logging.googleapis.com
+  - cloudkms.googleapis.com
+  - storage.googleapis.com
