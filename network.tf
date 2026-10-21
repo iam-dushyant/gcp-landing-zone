@@ -1,10 +1,10 @@
 locals {
-    host = google_project.p["net-host"].project_id
+    host = module.project["net-host"].project_id
 }
 
 resource "google_compute_shared_vpc_host_project" "host" {
     project = local.host
-    depends_on = [google_project_service.apis]
+    depends_on = [module.project]
 }
 
 resource "google_compute_network" "shared" {
@@ -12,14 +12,14 @@ resource "google_compute_network" "shared" {
     name = "shared-vpc"
     auto_create_subnetworks = false
     routing_mode = "GLOBAL"
-    depends_on = [google_project_service.apis]
+    depends_on = [module.project]
 }
 
 resource "google_compute_subnetwork" "env" {
     for_each = {non_prod = "10.10.0.0/24", prod = "10.10.1.0/24"}
     project = local.host
     network = google_compute_network.shared.id
-    name = "${each.key}-subnet"
+    name = "${replace(each.key, "_", "-")}-subnet"
     region = var.region
     ip_cidr_range = each.value
     private_ip_google_access = true
@@ -33,7 +33,7 @@ resource "google_compute_subnetwork" "env" {
 resource "google_compute_shared_vpc_service_project" "svc" {
     for_each = toset(["non-prod-app", "prod-app"])
     host_project = google_compute_shared_vpc_host_project.host.project
-    service_project = google_project.p[each.key].project_id
+    service_project = module.project[each.key].project_id
 
 }
 

@@ -1,11 +1,11 @@
-locals { sec = google_project.p["common-sec"].project_id }
+locals { sec = module.project["common-sec"].project_id }
 
 resource "google_logging_project_bucket_config" "audit" {
     project = local.sec
     location = var.region
     bucket_id = "org-audit"
     retention_days = 30
-    depends_on = [google_project_service.apis]
+    depends_on = [module.project]
 }
 
 resource "google_logging_organization_sink" "audit" {

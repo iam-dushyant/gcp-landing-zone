@@ -3,8 +3,8 @@ locals {
         "iam.disableServiceAccountKeyCreation",
         "compute.requireOsLogin",
         "compute.skipDefaultNetworkCreation",
-        "compute.uniformBucketLevelAccess",
-        "compute.publicAccessPrevention",
+        "storage.uniformBucketLevelAccess",
+        "storage.publicAccessPrevention",
     ]
 }
 

@@ -18,7 +18,7 @@ resource "google_folder_iam_member" "admin" {
     for_each = local.admin_bindings
     folder = google_folder.f[each.value[0]].name
     role = each.value[1]
-    member = "group:platform-admins@${var.domain}"
+    member = "user:admin@${var.domain}"
 }
 
 resource "google_folder_iam_member" "dev_nonprod" {
