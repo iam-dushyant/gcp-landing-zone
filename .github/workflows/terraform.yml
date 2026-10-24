@@ -84,20 +84,23 @@ jobs:
                 GH_TOKEN: ${{ github.token }}
               run: |
                 {
-                    echo "### Terraform plan"
-                    echo '```'
-                    grep -E '^(Plan:|No changes)' plan.txt || echo "plan failed, see the run log"
-                    echo "### Policy check"
-                    echo '```'
-                    cat policy.txt 2>/dev/null || echo "not run"
-                    echo "<details><summary>Full plan </summary>"
-                    echo
-                    echo '```'
-                    head -c 50000 plan.txt
-                    echo '```'
-                    echo "</details>"
+                  echo "### Terraform plan"
+                  echo '```'
+                  grep -E '^(Plan:|No changes)' plan.txt || echo "plan failed, see the run log"
+                  echo '```'
+                  echo "### Policy check"
+                  echo '```'
+                  cat policy.txt 2>/dev/null || echo "not run"
+                  echo '```'
+                  echo "<details><summary>Full plan</summary>"
+                  echo
+                  echo '```'
+                  head -c 50000 plan.txt 2>/dev/null || echo "no plan output"
+                  echo '```'
+                  echo "</details>"
                 } > comment.md
-                gh pr comment ${{ github.event.pull_request.request_number }} --body-file comment.md
+                gh pr comment "${{ github.event.pull_request.number }}" --repo "${{ github.repository }}" --body-file comment.md
+    
     apply:
         name: Apply
         needs: checks
