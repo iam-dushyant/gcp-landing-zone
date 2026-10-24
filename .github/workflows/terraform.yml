@@ -34,13 +34,13 @@ jobs:
         name: Static checks
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v4
-            - uses: hashicorp/terraform@v3
+            - uses: actions/checkout@v7
+            - uses: hashicorp/terraform@v4
               with:
                 terraform_version: ${{ env.TF_VERSION }}
             - name: Format
               run: terraform init -backend=false -input=false && terraform validate
-            - uses: terraform-linters/setup-tflint@v4
+            - uses: terraform-linters/setup-tflint@v6
             - name: Lint
               run: tflint --init && tflint --recursive
             - name: Security scan
@@ -57,13 +57,13 @@ jobs:
         if: github.event_name == 'pull_request'
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v7
             - id: auth
-              uses: google-github-actions/auth@v2
+              uses: google-github-actions/auth@v3
               with:
                 workload_identity_provider: ${{ vars.WIF_PROVIDER }}
                 service_account: ${{ vars.TF_SA }}
-            - uses: hashicorp/setup-terraform@v3
+            - uses: hashicorp/setup-terraform@v4
               with:
                 terraform_version: ${{ env.TF_VERSION }}
                 terraform_wrapper: false
@@ -105,12 +105,12 @@ jobs:
         runs-on: ubuntu-latest
         environment: production
         steps:
-            - uses: actions/checkout@v4
-            - uses: google-github-actions/auth@v2
+            - uses: actions/checkout@v7
+            - uses: google-github-actions/auth@v3
               with:
                 workload_identity_provider: ${{ vars.WIF_PROVIDER }}
                 service_account: ${{ vars.TF_SA }}
-            - uses: hashicorp/setup-terraform@v3
+            - uses: hashicorp/setup-terraform@v4
               with:
                 terraform-version: ${{ env.TF_VERSION }}
                 terraform_wrapper: false
