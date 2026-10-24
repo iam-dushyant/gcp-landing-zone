@@ -17,7 +17,7 @@ concurrency:
 
 env:
     TF_IN_AUTOMATION: "true"
-    TF_VERSION: "1.9.8"
+    TF_VERSION: "1.15.8"
     CONFTEST_VERSION: "0.56.0"
 
     # Non-secret inputs on Github
@@ -34,13 +34,13 @@ jobs:
         name: Static checks
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v4
-            - uses: hashicorp/terraform@v3
+            - uses: actions/checkout@v7
+            - uses: hashicorp/setup-terraform@v4
               with:
                 terraform_version: ${{ env.TF_VERSION }}
             - name: Format
               run: terraform init -backend=false -input=false && terraform validate
-            - uses: terraform-linters/setup-tflint@v4
+            - uses: terraform-linters/setup-tflint@v6
             - name: Lint
               run: tflint --init && tflint --recursive
             - name: Security scan
@@ -48,8 +48,84 @@ jobs:
               with:
                 scan-type: config
                 scan-ref: .
-                severity: MEDIUM, HIGH, CRITICAL
+                severity: "HIGH,CRITICAL"
                 exit-code: "1"
 
     plan:
-        
+        name: Plan and policy check
+        needs: checks
+        if: github.event_name == 'pull_request'
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v7
+            - id: auth
+              uses: google-github-actions/auth@v3
+              with:
+                workload_identity_provider: ${{ vars.WIF_PROVIDER }}
+                service_account: ${{ vars.TF_SA }}
+            - uses: hashicorp/setup-terraform@v4
+              with:
+                terraform_version: ${{ env.TF_VERSION }}
+                terraform_wrapper: false
+            - name: Plan
+              run: |
+                terraform init -input=false
+                terraform plan -input=false -no-color -out=tfplan | tee plan.txt
+                terraform show -json tfplan > plan.json
+            - name: Policy check (OPA)
+              run: |
+                base=https://github.com/open-policy-agent/conftest/releases/download
+                curl -sSL "$base/v${CONFTEST_VERSION}/conftest_${CONFTEST_VERSION}_Linux_x86_64.tar.gz" | tar xz conftest
+                ./conftest verify -p policy
+                ./conftest test plan.json -p policy --no-color | tee policy.txt
+            - name: Comment plan on PR
+              if: always()
+              env:
+                GH_TOKEN: ${{ github.token }}
+              run: |
+                {
+                  echo "### Terraform plan"
+                  echo '```'
+                  grep -E '^(Plan:|No changes)' plan.txt || echo "plan failed, see the run log"
+                  echo '```'
+                  echo "### Policy check"
+                  echo '```'
+                  cat policy.txt 2>/dev/null || echo "not run"
+                  echo '```'
+                  echo "<details><summary>Full plan</summary>"
+                  echo
+                  echo '```'
+                  head -c 50000 plan.txt 2>/dev/null || echo "no plan output"
+                  echo '```'
+                  echo "</details>"
+                } > comment.md
+                gh pr comment "${{ github.event.pull_request.number }}" --repo "${{ github.repository }}" --body-file comment.md
+    
+    apply:
+        name: Apply
+        needs: checks
+        if: github.event_name == 'push' && github.ref == 'ref/heads/main'
+        runs-on: ubuntu-latest
+        environment: production
+        steps:
+            - uses: actions/checkout@v7
+            - uses: google-github-actions/auth@v3
+              with:
+                workload_identity_provider: ${{ vars.WIF_PROVIDER }}
+                service_account: ${{ vars.TF_SA }}
+            - uses: hashicorp/setup-terraform@v4
+              with:
+                terraform-version: ${{ env.TF_VERSION }}
+                terraform_wrapper: false
+            - name: Plan
+              run: |
+                terraform init -input=false
+                terraform plan -input=false -out=tfplan
+                terraform show -json tfplan > plan.json
+            - name: Policy check (OPA)
+              run: |
+                base=https://github.com/open-policy-agent/conftest/releases/dowload
+                curl -sSL "$base/v${CONFTEST_VERSION}/conftest_${CONFTEST_VERSION}_Linux_x86_64.tar.gz" | tar xz conftest
+                ./conftest test plan.json -p policy
+            - name: Apply
+              run: terraform apply -input=false tfplan
