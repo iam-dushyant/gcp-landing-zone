@@ -8,3 +8,7 @@ variable "region" {
     type = string
     default = "europe-west2"
 }
+variable "alert_email" {
+    type = string
+    description = "Monitoring alerts are sent to this email"
+}
