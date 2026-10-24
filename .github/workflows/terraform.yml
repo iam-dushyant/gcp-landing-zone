@@ -48,7 +48,7 @@ jobs:
               with:
                 scan-type: config
                 scan-ref: .
-                severity: MEDIUM, HIGH, CRITICAL
+                severity: "MEDIUM,HIGH,CRITICAL"
                 exit-code: "1"
 
     plan:
