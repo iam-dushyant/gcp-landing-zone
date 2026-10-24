@@ -52,4 +52,77 @@ jobs:
                 exit-code: "1"
 
     plan:
-        
+        name: Plan and policy check
+        needs: checks
+        if: github.event_name == 'pull_request'
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - id: auth
+              uses: google-github-actions/auth@v2
+              with:
+                workload_identity_provider: ${{ vars.WIF_PROVIDER }}
+                service_account: ${{ vars.TF_SA }}
+            - uses: hashicorp/setup-terraform@v3
+              with:
+                terraform_version: ${{ env.TF_VERSION }}
+                terraform_wrapper: false
+            - name: Plan
+              run: |
+                terraform init -input=false
+                terraform plan -input=false -no-color -out=tfplan | teeplan.txt
+                terraform show -json tfplan > plan.json
+            - name: Policy check (OPA)
+              run: |
+                base=https://github.com/open-policy-agent/conftest/releases/download
+                curl -sSL "$base/v${CONFTEST_VERSION}/conftest_${CONFTEST_VERSION}_Linux_x86_64.tar.gz" | tar xz conftest
+                ./conftest verify -p policy
+                ./conftest test plan.json -p policy --no-color | tee policy.txt
+            - name: Comment plan on PR
+              if: always()
+              env:
+                GH_TOKEN: ${{ github.token }}
+              run: |
+                {
+                    echo "### Terraform plan"
+                    echo '```'
+                    grep -E '^(Plan:|No changes)' plan.txt || echo "plan failed, see the run log"
+                    echo "### Policy check"
+                    echo '```'
+                    cat policy.txt 2>/dev/null || echo "not run"
+                    echo "<details><summary>Full plan </summary>"
+                    echo
+                    echo '```'
+                    head -c 50000 plan.txt
+                    echo '```'
+                    echo "</details>"
+                } > comment.md
+                gh pr comment ${{ github.event.pull_request.request_number }} --body-file comment.md
+    apply:
+        name: Apply
+        needs: checks
+        if: github.event_name == 'push' && github.ref == 'ref/heads/main'
+        runs-on: ubuntu-latest
+        environment: production
+        steps:
+            - uses: actions/checkout@v4
+            - uses: google-github-actions/auth@v2
+              with:
+                workload_identity_provider: ${{ vars.WIF_PROVIDER }}
+                service_account: ${{ vars.TF_SA }}
+            - uses: hashicorp/setup-terraform@v3
+              with:
+                terraform-version: ${{ env.TF_VERSION }}
+                terraform_wrapper: false
+            - name: Plan
+              run: |
+                terraform init -input=false
+                terraform plan -input=false -out=tfplan
+                terraform show -json tfplan > plan.json
+            - name: Policy check (OPA)
+              run: |
+                base=https://github.com/open-policy-agent/conftest/releases/dowload
+                curl -sSL "$base/v${CONFTEST_VERSION}/conftest_${CONFTEST_VERSION}_Linux_x86_64.tar.gz" | tar xz conftest
+                ./conftest test plan.json -p policy
+            - name: Apply
+              run: terraform apply -input=false tfplan
