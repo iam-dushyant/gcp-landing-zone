@@ -1,0 +1,32 @@
+name: Epic
+description: A goal made of several tasks
+title: "[Epic] "
+labels: ["epic"]
+projects: ["YOUR_GH_USER/1"]
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: One or two sentences. What will exist when this is done?
+    validations:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: Done means
+      description: Checkable outcomes, e.g. "p95 latency under 2 s on 30 receipts"
+      value: |
+        - [ ]
+        - [ ]
+    validations:
+      required: true
+  - type: textarea
+    id: out
+    attributes:
+      label: Out of scope
+  - type: textarea
+    id: log
+    attributes:
+      label: Weekly notes
+      description: Add a line each week (shipped, slipped, learned)

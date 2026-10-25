@@ -1,0 +1,24 @@
+name: Task
+description: One piece of work, small enough for a week
+labels: ["task"]
+projects: ["YOUR_GH_USER/1"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What and why
+    validations:
+      required: true
+  - type: textarea
+    id: accept
+    attributes:
+      label: Acceptance criteria
+      value: |
+        - [ ]
+    validations:
+      required: true
+  - type: input
+    id: epic
+    attributes:
+      label: Epic
+      description: "e.g. #3 (add it as a sub-issue too)"
